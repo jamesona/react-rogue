@@ -29,6 +29,7 @@ export const Rogue = ({ width, height, tilesize }) => {
 		spawner.spawnMonster(10)
 		spawner.spawnStairs()
 		setWorldState(newWorldState)
+		// eslint-disable-next-line
 	}, [])
 
 	useEffect(() => {

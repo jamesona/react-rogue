@@ -21,14 +21,15 @@ export class Entity {
 	}
 
 	draw(context) {
-		const { x, y } = this.attributes.emoji.offset ||
-			this.attributes.ascii.offset || { x: 0, y: 0 }
+		// const { x, y } = this.attributes.emoji.offset || { x: 0, y: 0 }
+		const { x, y } = this.attributes.ascii.offset || { x: 0, y: 0 }
 
 		context.fillStyle = this.attributes.color || '#fff'
 		context.textBaseline = 'hanging'
 		context.font = `${this.size}px Cutive Mono`
 		context.fillText(
-			this.attributes.emoji.symbol || this.attributes.ascii.symbol || '',
+			// this.attributes.emoji.symbol
+			this.attributes.ascii.symbol || '',
 			this.x * this.size + x,
 			this.y * this.size + y
 		)
