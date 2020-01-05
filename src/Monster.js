@@ -89,19 +89,32 @@ export class Monster extends Entity {
 		}
 	]
 
+	get definition() {
+		return Monster.types.find(type => type.name === this.attributes.name)
+	}
+
 	action(verb, world) {
 		if (verb === 'bump') {
-			world.addToHistory(`Player attacks ${this.attributes.name}`)
-			this.attributes.health = this.attributes.health - 1
+			world.addToHistory(`You attack ${this.attributes.name}`)
+
+			this.attributes.health -= Math.pow(
+				1.0233,
+				world.player.attributes.attack
+			)
+
 			if (this.attributes.health <= 0) {
 				world.remove(this)
+				debugger
+				world.player.attributes.points += this.definition.health * 10
 			} else {
 				world.addToHistory(
 					`${this.attributes.name}'s HP: ${this.attributes.health}`
 				)
+				world.addToHistory(`${this.attributes.name} attacks you`)
 
-				world.player.attributes.health =
-					world.player.attributes.health - 1
+				world.player.attributes.health -=
+					1 / Math.pow(1.001, world.player.attributes.defense)
+
 				if (world.player.attributes.health <= 0) {
 					world.addToHistory('You died')
 				} else {

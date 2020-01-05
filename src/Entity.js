@@ -35,6 +35,11 @@ export class Entity {
 		)
 	}
 
+	takeDamage(amount) {
+		if (this.attributes && this.attributes.health)
+			this.attributes.health -= amount
+	}
+
 	action(verb, world) {
 		console.log(verb)
 	}

@@ -104,16 +104,20 @@ export class World {
 
 	movePlayer(dx, dy) {
 		const { player } = this
-		const targetTile = this.getTile(...player.locationFromVector(dx, dy))
+		const [x, y] = player.locationFromVector(dx, dy)
+		const targetTile = this.getTile(x, y)
 
 		if (targetTile === 1) return
 
-		player.move(dx, dy)
-		console.log(`player moved to (${player.x},${player.y})`)
+		const entity = this.getEntityAtLocation(x, y)
 
-		const entity = this.getEntityAtLocation(player.x, player.y)
 		if (entity) {
 			entity.action('bump', this)
+		}
+
+		if (!entity || !entity.definition || !entity.definition.health) {
+			player.move(dx, dy)
+			console.log(`player moved to (${player.x},${player.y})`)
 		}
 	}
 
