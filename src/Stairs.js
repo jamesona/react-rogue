@@ -20,7 +20,10 @@ export class Stairs extends Entity {
 
 	action(verb, world) {
 		if (verb === 'bump') {
-			world.addToHistory('You go down the stairs')
+			const points = world.floor * 100
+			world.player.attributes.score += points
+			world.floor += 1
+			world.addToHistory(`You go down the stairs (Score +${points})`)
 			world.createCellularMap()
 			world.moveToValidSpace(world.player)
 			world.entities = [world.player]

@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import App from './App'
+import Rogue from './Rogue'
+import './Rogue.css'
 
-ReactDOM.render(<App />, document.getElementById('root'))
+ReactDOM.render(<Rogue width={40} height={40} tilesize={20} historyLines={10} />, document.body)

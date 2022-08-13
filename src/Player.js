@@ -1,5 +1,9 @@
 import { Entity } from './Entity'
-import { Loot } from './Loot'
+
+const uppercaseFirstChar = (str) => str[0].toUpperCase() + str.slice(1)
+const toTitleCase = (camelStr) => {
+	return  uppercaseFirstChar(camelStr.replace(/([A-Z])/g, ' $1'))
+}
 
 export class Player extends Entity {
 	attributes = {
@@ -19,43 +23,35 @@ export class Player extends Entity {
 				y: 3
 			}
 		},
-		maxHealth: 10,
-		health: 10,
-		attack: 1,
+		maxHealth: 100,
+		health: 100,
+		attack: 5,
 		defense: 1,
-		points: 0
+		score: 0
 	}
 
-	use(item) {
-		const type = Loot.types.findIndex(
-			definition => definition.name === item.attributes.name
-		)
+	use(item, world) {
+		let logMessage = `Picked up ${item.attributes.name}`
+		const delta = item.attributes.effect(this)
+		Object.entries(delta).forEach(([attribute, change], i, a) => {
+			if (this.attributes[attribute]) {
+				this.attributes[attribute] += change
+				
+				const maxAttr = 'max' + uppercaseFirstChar(attribute)
+				if (this.attributes[maxAttr]) {
+					this.attributes[attribute] = Math.min(this.attributes[attribute], this.attributes[maxAttr])
+				}
+			} else {
+				this.attributes[attribute] = change
+			}
 
-		switch (type) {
-			case 0: {
-				this.attributes.points += 100
-				break
-			}
-			case 1: {
-				this.attributes.maxHealth += 1
-				this.attributes.health += this.attributes.maxHealth * 0.25
-				this.attributes.health = Math.min(
-					this.attributes.health,
-					this.attributes.maxHealth
-				)
-				break
-			}
-			case 2: {
-				this.attributes.attack += 1
-				break
-			}
-			case 3: {
-				this.attributes.defense += 1
-				break
-			}
-			default:
-				break
-		}
+			if (i === 0) logMessage += ' ('
+			else logMessage += ', '
+			logMessage += `${toTitleCase(attribute)} ${change > 0 ? '+' : ''}${change}`
+			
+			if (i === a.length - 1) logMessage += ')'
+		})
+		world.addToHistory(logMessage)
 	}
 
 	get hpBar() {
@@ -70,19 +66,23 @@ export class Player extends Entity {
 			})
 			.join('')
 
-		return 'HP [' + segments + ']'
+		return `HP: [${segments}] ${this.attributes.health}/${this.attributes.maxHealth}`
 	}
 
 	get score() {
-		return 'Score: ' + this.attributes.points
+		return `Score: ${this.attributes.score}`
 	}
 
 	get attackLevel() {
-		return 'ATT: ' + this.attributes.attack
+		return `ATT: ${this.attributes.attack}`
 	}
 
 	get defenseLevel() {
-		return 'DEF: ' + this.attributes.defense
+		return `DEF: ${this.attributes.defense} (${Math.floor((1 - this.damageReduction) * 100)}%)`
+	}
+
+	get damageReduction() {
+		return 1 - (Math.log(Math.max(this.attributes.defense), 1) / 10)
 	}
 
 	printLeft(context, ...items) {

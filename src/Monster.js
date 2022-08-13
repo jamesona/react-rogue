@@ -17,7 +17,7 @@ export class Monster extends Entity {
 				}
 			},
 
-			health: 6
+			health: 60
 		},
 		{
 			name: 'Skeleton',
@@ -34,7 +34,7 @@ export class Monster extends Entity {
 				}
 			},
 
-			health: 2
+			health: 20
 		},
 		{
 			name: 'Kobold',
@@ -52,7 +52,7 @@ export class Monster extends Entity {
 				}
 			},
 
-			health: 3
+			health: 30
 		},
 		{
 			name: 'Bat',
@@ -68,7 +68,7 @@ export class Monster extends Entity {
 					y: 4
 				}
 			},
-			health: 1
+			health: 10
 		},
 		{
 			name: 'Rat',
@@ -85,7 +85,7 @@ export class Monster extends Entity {
 				}
 			},
 
-			health: 1
+			health: 10
 		}
 	]
 
@@ -95,32 +95,24 @@ export class Monster extends Entity {
 
 	action(verb, world) {
 		if (verb === 'bump') {
-			world.addToHistory(`You attack ${this.attributes.name}`)
-
-			this.attributes.health -= Math.pow(
-				1.0233,
-				world.player.attributes.attack
-			)
+			const damageDealtByPlayer = world.player.attributes.attack
+			this.takeDamage(damageDealtByPlayer)
+			world.addToHistory(`You attack ${this.attributes.name} for ${damageDealtByPlayer} damage`)
 
 			if (this.attributes.health <= 0) {
+				const points = this.definition.health * 10
+				world.addToHistory(`${this.attributes.name} was slain (Score +${points})`)
+				world.player.attributes.score += points
 				world.remove(this)
-				debugger
-				world.player.attributes.points += this.definition.health * 10
 			} else {
-				world.addToHistory(
-					`${this.attributes.name}'s HP: ${this.attributes.health}`
-				)
-				world.addToHistory(`${this.attributes.name} attacks you`)
-
-				world.player.attributes.health -=
-					1 / Math.pow(1.001, world.player.attributes.defense)
+				const {damageReduction} = world.player
+				const damageDealtToPlayer = Math.floor(this.definition.health / 2 * damageReduction) || 1
+				world.player.takeDamage(damageDealtToPlayer)
+				world.addToHistory(`${this.attributes.name} attacks you for ${damageDealtToPlayer} HP`)
 
 				if (world.player.attributes.health <= 0) {
 					world.addToHistory('You died')
-				} else {
-					world.addToHistory(
-						`You have ${world.player.attributes.health} HP`
-					)
+					world.end()
 				}
 			}
 		}

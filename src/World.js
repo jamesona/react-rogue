@@ -5,14 +5,16 @@ export const buildGrid = (width, height) =>
 	new Array(width).fill(null).map(() => new Array(height).fill(null))
 
 export class World {
-	constructor(width, height, tileSize) {
+	constructor(width, height, tileSize, historyLines) {
 		this.width = width
 		this.height = height
 		this.tileSize = tileSize
 		this.player = new Player(0, 0, tileSize)
 		this.entities = [this.player]
-		this.history = ['You have entered a dungeon', '---------']
+		this.history = ['You have entered a dungeon']
+		this.historyLines = historyLines
 		this.map = buildGrid(width, height)
+		this.floor = 1
 	}
 
 	add(entity) {
@@ -58,6 +60,11 @@ export class World {
 
 		cellGenerator.create(userCallback)
 		cellGenerator.connect(userCallback, 1)
+	}
+
+	init() {
+		this.createCellularMap()
+		this.moveToValidSpace(this.player)
 	}
 
 	getEntityAtLocation(x, y) {
@@ -115,9 +122,8 @@ export class World {
 			entity.action('bump', this)
 		}
 
-		if (!entity || !entity.definition || !entity.definition.health) {
+		if (!entity?.definition?.health) {
 			player.move(dx, dy)
-			console.log(`player moved to (${player.x},${player.y})`)
 		}
 	}
 
@@ -133,15 +139,36 @@ export class World {
 		return this.getTile(x, y) === 1
 	}
 
+	printLog(context) {
+		context.fillStyle = '#000'
+		context.fillRect(0, this.height * this.tileSize, this.width * this.tileSize, this.historyLines * this.tileSize)
+		context.fillStyle = '#fff'
+		context.textAlign = 'start'
+		this.history.slice(-this.historyLines).forEach((line, lineNumber) => {
+			context.fillText(line, this.tileSize, (this.height + lineNumber) * this.tileSize)
+		})
+	}
+
 	draw(context) {
+		if (this.ended) return
+
+		this.drawMap(context)
+		this.processEntities(context)
+		this.printLog(context)
+	}
+
+	drawMap(context) {
 		this.iterateTiles((x, y) => {
 			if (this.map[x][y] === 1) {
 				this.drawWall(context, x, y)
 			}
 		})
+	}
+
+	processEntities(context) {
 		this.entities.forEach((entity, i) => {
 			try {
-				entity.draw(context)
+				entity.draw(context, this)
 			} catch (e) {
 				debugger
 			}
@@ -160,6 +187,10 @@ export class World {
 
 	addToHistory(message) {
 		this.history.push(message)
+	}
+
+	end() {
+		this.ended = true
 	}
 }
 

@@ -3,7 +3,7 @@ import { Entity } from './Entity'
 export class Loot extends Entity {
 	static types = [
 		{
-			name: 'Gold Coin',
+			name: 'Treasure',
 			color: 'yellow',
 			ascii: {
 				symbol: '$',
@@ -18,7 +18,10 @@ export class Loot extends Entity {
 					x: -2,
 					y: 3
 				}
-			}
+			},
+			effect: (player) => ({
+				score: 100
+			})
 		},
 		{
 			name: 'Health Potion',
@@ -36,7 +39,11 @@ export class Loot extends Entity {
 					x: -4,
 					y: 3
 				}
-			}
+			},
+			effect: (player) => ({
+				maxHealth: 1,
+				health: player.attributes.maxHealth * 0.25
+			})
 		},
 		{
 			name: 'Long Sword',
@@ -54,9 +61,11 @@ export class Loot extends Entity {
 					x: -4,
 					y: 3
 				}
-			}
+			},
+			effect: (player) => ({
+				attack: 1
+			})
 		},
-
 		{
 			name: 'Shield',
 			color: 'lightgrey',
@@ -73,13 +82,16 @@ export class Loot extends Entity {
 					x: -2,
 					y: 3
 				}
-			}
+			},
+			effect: (player) => ({
+				defense: 1
+			})
 		}
 	]
 
 	action(verb, world) {
 		if (verb === 'bump') {
-			world.player.use(this)
+			world.player.use(this, world)
 			world.remove(this)
 		}
 		if (verb === 'drop') {

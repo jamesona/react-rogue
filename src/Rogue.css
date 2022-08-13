@@ -1,16 +1,15 @@
 @import url('https://fonts.googleapis.com/css?family=Courier+Prime|Cutive+Mono|Share+Tech+Mono&display=swap');
-
-body {
+html, body {
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
 	margin: 0;
+}
+body {
 	background: black;
 	font-family: 'Cutive Mono', monospace;
 	color: white;
-}
-
-canvas,
-ul {
-	display: inline-block;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }

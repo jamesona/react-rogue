@@ -26,32 +26,34 @@ export class InputManager {
 
 	handleKeys = e => {
 		const move = Action.createAction('move')
+		const reset = Action.createAction('reset')
 
 		const left = 37
 		const up = 38
 		const right = 39
 		const down = 40
+		const enter = 13
 
 		e.preventDefault()
 		switch (e.keyCode) {
 			case left: {
-				this.broadcast(move({ x: -1, y: 0 }))
-				break
+				return this.broadcast(move({ x: -1, y: 0 }))
 			}
 
 			case up: {
-				this.broadcast(move({ x: 0, y: -1 }))
-				break
+				return this.broadcast(move({ x: 0, y: -1 }))
 			}
 
 			case right: {
-				this.broadcast(move({ x: 1, y: 0 }))
-				break
+				return this.broadcast(move({ x: 1, y: 0 }))
 			}
 
 			case down: {
-				this.broadcast(move({ x: 0, y: 1 }))
-				break
+				return this.broadcast(move({ x: 0, y: 1 }))
+			}
+
+			case enter: {
+				return this.broadcast(reset())
 			}
 
 			default:
